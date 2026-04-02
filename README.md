@@ -67,6 +67,11 @@ YouTube Spam Classifier — Implementation Plan
      import nltk
      from nltk.corpus import stopwords
 
+install using : pip install pandas numpy scikit-learn nltk             
+or 
+ py -m pip install pandas numpy scikit-learn nltk
+
+ to run 
 python spam_classifier.py
 
       Results
