@@ -2,7 +2,7 @@
 
 ## NLP Group Project — Group 3
 
-A Naive Bayes classifier that detects spam comments on YouTube videos using the Bag-of-Words model with TF-IDF weighting.
+A Naive Bayes classifier that detects spam comments on YouTube videos using the Bag-of-Words model with TF-IDF weighting and lightweight text cleaning.
 
 ---
 
@@ -20,6 +20,7 @@ NLP group project: Build a Bag-of-Words + Naive Bayes spam classifier on the You
 - **File**: `Youtube03-LMFAO.csv` (LMFAO - Party Rock Anthem)
 - **Size**: 438 comments (202 non-spam, 236 spam)
 - **Columns used**: `CONTENT` (comment text) and `CLASS` (0 = not spam, 1 = spam)
+- **Preprocessing**: HTML/entity cleanup, removal of encoding artifacts, lowercase normalization, and NLTK stopword removal
 
 ---
 
@@ -34,10 +35,13 @@ NLP group project: Build a Bag-of-Words + Naive Bayes spam classifier on the You
 
 ### 2. Data Pre-processing (25% of grade)
 - Use `nltk` for text preparation (stopword removal)
-- Apply `CountVectorizer.fit_transform()` on CONTENT column to create Bag-of-Words features
-- Print the shape of the transformed data and feature names (initial features)
-- Apply `TfidfTransformer` to downscale the count matrix using TF-IDF
-- Print the shape of the TF-IDF transformed data (final features)
+- Clean comment text before vectorization so HTML and encoding artifacts do not inflate the vocabulary
+- Shuffle first, then split into train/test before fitting the vectorizer
+- Apply `CountVectorizer.fit_transform()` on the cleaned training `CONTENT` only to create Bag-of-Words features
+- Transform the test `CONTENT` with the fitted vectorizer
+- Apply `TfidfTransformer.fit_transform()` on the training counts only
+- Transform the test counts with the fitted TF-IDF transformer
+- Print the shapes of the transformed data and feature names (initial and final features)
 
 ### 3. Shuffle & Split
 - Shuffle using `df.sample(frac=1)` with a `random_state` for reproducibility
@@ -57,7 +61,7 @@ NLP group project: Build a Bag-of-Words + Naive Bayes spam classifier on the You
 
 ### 6. Custom Comments
 - Create 6 new comments: 4 non-spam, 2 spam
-- Transform them through the same `CountVectorizer` + `TfidfTransformer` pipeline
+- Transform them through the same cleaning + `CountVectorizer` + `TfidfTransformer` pipeline
 - Pass to classifier and print predictions with labels
 
 ### 7. Conclusions
@@ -87,7 +91,6 @@ python spam_classifier.py
 
 ```python
 import pandas as pd
-import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import confusion_matrix, classification_report, accuracy_score
@@ -99,7 +102,6 @@ from nltk.corpus import stopwords
 | Library | Purpose |
 |---------|---------|
 | **pandas** | Data loading and manipulation |
-| **numpy** | Numerical operations |
 | **scikit-learn** | CountVectorizer, TfidfTransformer, MultinomialNB, cross-validation, metrics |
 | **nltk** | English stopwords list |
 
@@ -110,9 +112,9 @@ from nltk.corpus import stopwords
 | Metric | Value |
 |--------|-------|
 | Dataset | 438 comments (202 not spam, 236 spam) |
-| Vocabulary Size | 856 unique words |
-| 5-Fold CV Accuracy | 86.27% |
-| Test Set Accuracy | **89.09%** |
+| Vocabulary Size | 666 unique words |
+| 5-Fold CV Accuracy | 88.71% |
+| Test Set Accuracy | **88.18%** |
 | Custom Comments | 6/6 correct |
 
 ### Confusion Matrix
@@ -133,13 +135,19 @@ Actual Spam          5       57
 | Step | Description |
 |------|-------------|
 | 1. Load & Explore | Load CSV, check shape, class distribution, missing values |
-| 2. Pre-process | Bag-of-Words with `CountVectorizer`, then TF-IDF downscaling |
+| 2. Pre-process | Clean text, then Bag-of-Words with `CountVectorizer`, then TF-IDF downscaling |
 | 3. Shuffle & Split | `pandas.sample(frac=1)` shuffle, 75/25 train-test split |
 | 4. Train | `MultinomialNB` classifier + 5-fold cross-validation |
 | 5. Test | Confusion matrix, classification report, accuracy |
 | 6. Custom Comments | 6 new comments (4 legit, 2 spam) tested on the model |
 
 ---
+
+## Notes
+
+- The script now loads the CSV relative to the script path, so it is less sensitive to the current working directory.
+- NLTK stopwords are downloaded only if they are missing.
+- The sample output in the script is based on cleaned comments for presentation clarity.
 
 ## Team Members
 
